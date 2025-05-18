@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">Thank you for your order!</h1>
+        <p class="lead">Your order has been received and is being processed.</p>
+        <hr class="my-4">
+        <p>You will receive an email confirmation shortly with the details of your order.</p>
+        <a class="btn btn-primary btn-lg" href="{{ path('app_product_index') }}" role="button">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %} 

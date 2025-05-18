@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Your Shopping Cart{% endblock %}
+
+{% block body %}
+    <h1>Your Shopping Cart</h1>
+
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }}">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    {% if items is empty %}
+        <p>Your cart is empty.</p>
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.price|number_format(2) }} €</td>
+                    <td>
+                        <form action="{{ path('cart_update', {id: item.product.id}) }}" method="post">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="0" />
+                            <button type="submit">Update</button>
+                        </form>
+                    </td>
+                    <td>{{ item.subtotal|number_format(2) }} €</td>
+                    <td>
+                        <a href="{{ path('cart_remove', {id: item.product.id}) }}">Remove</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Total: {{ total|number_format(2) }} €</h3>
+
+        <a href="{{ path('homepage') }}">Continue Shopping</a>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Your Shopping Cart{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Your Shopping Cart</h1>
+    
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+    
+    {% if items|length > 0 %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.product.price|number_format(2, '.', ',') }} €</td>
+                        <td>
+                            <form action="{{ path('cart_update', {'id': item.product.id}) }}" method="post" class="form-inline">
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control mr-2" style="width: 70px">
+                                <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                            </form>
+                        </td>
+                        <td>{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }} €</td>
+                        <td>
+                            <a href="{{ path('cart_remove', {'id': item.product.id}) }}" class="btn btn-sm btn-danger">Remove</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
+                    <td><strong>{{ total|number_format(2, '.', ',') }} €</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{{ path('cart_clear') }}" class="btn btn-warning">Clear Cart</a>
+            <a href="{{ path('cart_order') }}" class="btn btn-success">Order Now</a>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Your cart is empty. <a href="{{ path('app_product_index') }}">Browse our products</a>.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 
