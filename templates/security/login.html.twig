@@ -16,6 +16,12 @@
         <label for="password">Mot de passe :</label>
         <input type="password" id="password" name="password" required>
 
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="_remember_me" checked> Se souvenir de moi
+            </label>
+        </div>
+
         <input type="hidden" name="_csrf_token"
                value="{{ csrf_token('authenticate') }}"
         >

@@ -47,13 +47,13 @@ class RegistrationController extends AbstractController
             // generate a signed url and email it to the user
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
-                    ->from(new Address('noreply@example.com', 'E-commerce Bot'))
+                    ->from(new Address('Mojo.2025.jojo@gmail.com', 'E-commerce Support'))
                     ->to($user->getEmail())
                     ->subject('Please Confirm your Email')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            $this->addFlash('success', 'Please check your email to verify your account.');
+            $this->addFlash('success', 'Please check your email to verify your account. You can login after verification.');
 
             return $this->redirectToRoute('app_login');
         }
@@ -64,10 +64,13 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+    public function verifyUserEmail(Request $request, TranslatorInterface $translator, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('verify_email_error', 'You must be logged in to verify your email.');
+            return $this->redirectToRoute('app_login');
+        }
 
         // validate email confirmation link, sets User::isVerified=true and persists
         try {
@@ -78,8 +81,8 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', 'Your email address has been verified. You can now login.');
 
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_login');
     }
 }
