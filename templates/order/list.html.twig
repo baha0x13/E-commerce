@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>My Orders</h1>
+
+        {% if orders is empty %}
+            <div class="alert alert-info">No orders yet.</div>
+        {% else %}
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th><th>Date</th><th>Total (TND)</th><th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
+                        <td>{{ order.total }}</td>
+                        <td>{{ order.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

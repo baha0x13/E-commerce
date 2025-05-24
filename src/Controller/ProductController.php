@@ -7,8 +7,10 @@ use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/product')]
+#[IsGranted('ROLE_USER')]
 class ProductController extends AbstractController
 {
     #[Route('/', name: 'app_product_index')]

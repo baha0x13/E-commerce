@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Order Confirmed ✅</h1>
+        <p>Thank you for your purchase!</p>
+        <ul>
+            <li><strong>ID:</strong> {{ order.id }}</li>
+            <li><strong>Total:</strong> {{ order.total }} TND</li>
+            <li><strong>Status:</strong> {{ order.status }}</li>
+            <li><strong>Date:</strong> {{ order.createdAt|date('d/m/Y H:i') }}</li>
+        </ul>
+        <a href="{{ path('order_user') }}" class="btn btn-secondary mt-3">Back to My Orders</a>
+    </div>
+{% endblock %}

@@ -3,14 +3,55 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block body %}
-    <h1>Tableau de bord Admin</h1>
+    <div class="container">
+        <h1 class="mb-4">Tableau de bord Admin</h1>
 
-    <p>Bienvenue sur le tableau de bord, {{ app.user.username }} !</p>
+        <div class="alert alert-info">
+            <i class="bi bi-person-circle"></i> Bienvenue sur le tableau de bord, {{ app.user.username }} !
+        </div>
 
-    <ul>
-        <li><a href="{{ path('product_list') }}">Gérer les produits</a></li>
-        <li><a href="{{ path('admin_orders') }}">Gérer les commandes</a></li>
-        <li><a href="{{ path('admin_users') }}">Gérer les utilisateurs</a></li>
-        <!-- Ajoute les liens vers d'autres sections admin -->
-    </ul>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-box"></i> Produits
+                        </h5>
+                        <p class="card-text">Gérez votre catalogue de produits, ajoutez de nouveaux articles et modifiez les existants.</p>
+                        <a href="{{ path('product_list') }}" class="btn btn-primary">
+                            <i class="bi bi-box"></i> Gérer les produits
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-cart"></i> Commandes
+                        </h5>
+                        <p class="card-text">Consultez et gérez les commandes de vos clients, suivez leur statut.</p>
+                        <a href="{{ path('admin_orders') }}" class="btn btn-primary">
+                            <i class="bi bi-cart"></i> Gérer les commandes
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-people"></i> Utilisateurs
+                        </h5>
+                        <p class="card-text">Gérez les comptes utilisateurs, modifiez les rôles et les permissions.</p>
+                        <a href="{{ path('admin_users') }}" class="btn btn-primary">
+                            <i class="bi bi-people"></i> Gérer les utilisateurs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

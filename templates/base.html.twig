@@ -29,9 +29,11 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('app_product_index') }}">Products</a>
-                        </li>
+                        {% if app.user %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_product_index') }}">Products</a>
+                            </li>
+                        {% endif %}
                     </ul>
                     <ul class="navbar-nav">
                         {% if app.user %}
@@ -42,7 +44,7 @@
                             </li>
                             {% if is_granted('ROLE_ADMIN') %}
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ path('app_admin') }}">Admin</a>
+                                    <a class="nav-link" href="{{ path('admin_dashboard') }}">Admin</a>
                                 </li>
                             {% endif %}
                             <li class="nav-item">

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Orders{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Order Management 🛒</h1>
+        <ul>
+            <li><a href="{{ path('order_user') }}" class="btn btn-primary">📦 View My Orders</a></li>
+        </ul>
+    </div>
+{% endblock %}
+

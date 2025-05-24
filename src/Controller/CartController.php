@@ -88,13 +88,4 @@ class CartController extends AbstractController
         
         return $this->redirectToRoute('cart_index');
     }
-    
-    #[Route('/order', name: 'order')]
-    public function order(): Response
-    {
-        // Here you would implement your order processing logic
-        // For now, just display a thank you message
-        
-        return $this->render('cart/order.html.twig');
-    }
 }
