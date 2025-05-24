@@ -67,17 +67,25 @@ class OrderController extends AbstractController
         $this->em->persist($order);
         $this->em->flush();
 
+        $context = [
+            'user' => $user,
+            'order' => $order,
+            'verificationUrl' => $this->urlGenerator->generate(
+                'order_verify',
+                ['token' => $order->getVerificationToken()],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            )
+        ];
+
+// Debug: dump the context to check values
+    //    dump($context);
+
         $email = (new TemplatedEmail())
             ->from('mojo.2025.jojo@gmail.com')
             ->to($user->getEmail())
             ->subject('Order Verification')
             ->htmlTemplate('emails/order_verification.html.twig')
-            ->context([
-                'user' => $user,
-                'order' => $order,
-                'verificationUrl' => $this->urlGenerator->generate('order_verify', ['token' => $order->getVerificationToken()], UrlGeneratorInterface::ABSOLUTE_URL)
-            ]);
-
+            ->context($context);
         $this->mailer->send($email);
 
         return $this->json([
@@ -91,35 +99,42 @@ class OrderController extends AbstractController
     public function verifyOrder(string $token): Response
     {
         $order = $this->em->getRepository(Order::class)->findOneBy(['verificationToken' => $token]);
-        if (!$order || $order->getStatus() !== 'en_attente') {
-            $this->addFlash('error', 'Invalid or already verified order.');
-            return $this->redirectToRoute('app_order');
-        }
-
-        $order->setStatus('payée')->setVerificationToken(null);
-        $this->em->flush();
-
-        $this->addFlash('success', 'Order verified!');
-        return $this->redirectToRoute('order_user');
-    }
-
-    #[Route('/order/confirm', name: 'order_confirm', methods: ['GET'])]
-    public function confirm(Request $request): Response
-    {
-        $orderId = $request->query->get('orderId');
-        $order = $orderId ? $this->em->getRepository(Order::class)->find($orderId) : null;
 
         if (!$order) {
-            $this->addFlash('error', 'Order not found.');
+            $this->addFlash('error', 'Jeton de vérification invalide.');
             return $this->redirectToRoute('app_order');
         }
 
-        if ($order->getStatus() !== 'payée') {
-            $order->setStatus('payée');
-            $this->em->flush();
+        if ($order->getStatus() !== 'en_attente') {
+            $this->addFlash('warning', 'Cette commande a déjà été vérifiée.');
+            return $this->redirectToRoute('order_user');
         }
 
-        return $this->render('order/confirm.html.twig', ['order' => $order]);
+        $order->setStatus('payée');
+        $order->setVerificationToken(null);
+        $this->em->flush();
+
+        return $this->redirectToRoute('order_confirmed', ['id' => $order->getId()]);
+    }
+
+    #[Route('/order/check-email', name: 'check_email', methods: ['GET'])]
+    public function checkEmail(): Response
+    {
+        return $this->render('order/check_email.html.twig');
+    }
+
+    #[Route('/order/confirmed/{id}', name: 'order_confirmed', methods: ['GET'])]
+    public function confirmed(int $id): Response
+    {
+        $order = $this->em->getRepository(Order::class)->find($id);
+
+        if (!$order) {
+            throw $this->createNotFoundException('Commande introuvable.');
+        }
+
+        return $this->render('order/confirm.html.twig', [
+            'order' => $order,
+        ]);
     }
 
     #[Route('/order/user', name: 'order_user', methods: ['GET'])]

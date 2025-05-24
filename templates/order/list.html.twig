@@ -12,13 +12,12 @@
             <table class="table table-bordered table-hover">
                 <thead class="table-dark">
                 <tr>
-                    <th>ID</th><th>Date</th><th>Total (TND)</th><th>Status</th>
+                   <th>Date</th><th>Total (TND)</th><th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for order in orders %}
                     <tr>
-                        <td>{{ order.id }}</td>
                         <td>{{ order.createdAt|date('d/m/Y H:i') }}</td>
                         <td>{{ order.total }}</td>
                         <td>{{ order.status }}</td>

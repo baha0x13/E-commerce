@@ -76,7 +76,7 @@
                     const data = await response.json();
                     if (data.orderId) {
                         await fetch('{{ path('cart_clear') }}');
-                        window.location.href = '{{ path('order_confirm') }}?orderId=' + data.orderId;
+                        window.location.href = '{{ path('check_email') }}'
                     } else {
                         throw new Error(data.error || 'Unknown error occurred');
                     }
