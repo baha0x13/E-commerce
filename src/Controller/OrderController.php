@@ -77,13 +77,10 @@ class OrderController extends AbstractController
             )
         ];
 
-// Debug: dump the context to check values
-    //    dump($context);
-
         $email = (new TemplatedEmail())
             ->from('mojo.2025.jojo@gmail.com')
             ->to($user->getEmail())
-            ->subject('Order Verification')
+            ->subject('Verification de votre Commande')
             ->htmlTemplate('emails/order_verification.html.twig')
             ->context($context);
         $this->mailer->send($email);
@@ -100,22 +97,28 @@ class OrderController extends AbstractController
     {
         $order = $this->em->getRepository(Order::class)->findOneBy(['verificationToken' => $token]);
 
+
         if (!$order) {
-            $this->addFlash('error', 'Jeton de vérification invalide.');
             return $this->redirectToRoute('app_order');
         }
 
-        if ($order->getStatus() !== 'en_attente') {
-            $this->addFlash('warning', 'Cette commande a déjà été vérifiée.');
-            return $this->redirectToRoute('order_user');
+        if ($order->getStatus() === 'en_attente') {
+            $order->setStatus('en_attente_paiement');
+            $this->em->flush();
+
+            return $this->redirectToRoute('order_payment', ['id' => $order->getId()]);
         }
 
-        $order->setStatus('payée');
-        $order->setVerificationToken(null);
-        $this->em->flush();
+        if ($order->getStatus() === 'en_attente_confirmation_payment') {
+            $order->setStatus('confirme');
+            $this->em->flush();
 
-        return $this->redirectToRoute('order_confirmed', ['id' => $order->getId()]);
+            return $this->redirectToRoute('order_confirmed', ['id' => $order->getId()]);
+        }
+
+        return $this->redirectToRoute('order_user');
     }
+
 
     #[Route('/order/check-email', name: 'check_email', methods: ['GET'])]
     public function checkEmail(): Response
@@ -133,6 +136,68 @@ class OrderController extends AbstractController
         }
 
         return $this->render('order/confirm.html.twig', [
+            'order' => $order,
+        ]);
+    }
+
+    #[Route('/order/{id}/payment', name: 'order_payment', methods: ['GET', 'POST'])]
+    public function payment(Order $order, Request $request,MailerInterface $mailer): Response
+    {
+        $user = $this->security->getUser();
+
+        // Check if user owns this order and order is awaiting payment
+        if ($order->getUser() !== $user || $order->getStatus() !== 'en_attente_paiement') {
+            throw $this->createAccessDeniedException('Unauthorized access to payment page.');
+        }
+
+        if ($request->isMethod('POST')) {
+            $cardNumber = $request->request->get('cardNumber');
+            $expiry = $request->request->get('expiry');
+            $cvc = $request->request->get('cvc');
+
+            if (!$cardNumber || !$expiry || !$cvc) {
+                $this->addFlash('error', 'Please fill all payment fields.');
+            }
+            elseif (
+                strlen($cardNumber) != 16 ||
+                !ctype_digit($cardNumber) ||
+                strlen($cvc) != 3 ||
+                !ctype_digit($cvc) ||
+                !preg_match('/^(0[1-9]|1[0-2])\/\d{2}$/', $expiry)
+            ) {
+                $this->addFlash('error', 'Invalid Credentials.');
+            }
+            else {
+                // Simulate success: update order status etc.
+                $order->setStatus('en_attente_confirmation_payment');
+                $this->em->flush();
+                $context = [
+                    'user' => $user,
+                    'order' => $order,
+                    'verificationUrl' => $this->urlGenerator->generate(
+                        'order_verify',
+                        ['token' => $order->getVerificationToken()],
+                        UrlGeneratorInterface::ABSOLUTE_URL
+                    )
+                ];
+
+
+                $email = (new TemplatedEmail())
+                    ->from('mojo.2025.jojo@gmail.com')
+                    ->to($user->getEmail())
+                    ->subject('Verification de Paiement')
+                    ->htmlTemplate('emails/payment_verification.html.twig')
+                    ->context($context);
+
+                $mailer->send($email);
+
+                // 3. Redirect to a "check your email" page
+                return $this->redirectToRoute('check_email');
+            }
+        }
+
+
+        return $this->render('order/payment.html.twig', [
             'order' => $order,
         ]);
     }
