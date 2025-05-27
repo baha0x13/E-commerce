@@ -3,32 +3,71 @@
 {% block title %}Products{% endblock %}
 
 {% block body %}
-    <h1>Products</h1>
+    <div class="container mt-4">
+        <h1>Products</h1>
 
-    {% for message in app.flashes('success') %}
-        <div class="alert alert-success">
-            {{ message }}
-        </div>
-    {% endfor %}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
 
-    <div class="row">
-        {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ product.name }}</h5>
-                        <p class="card-text">{{ product.price|number_format(2, '.', ',') }} €</p>
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-sm btn-info">Details</a>
-                            <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-sm btn-primary">Add to Cart</a>
+        <form class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text"
+                           name="q"
+                           class="form-control"
+                           placeholder="Search by name..."
+                           value="{{ searchTerm }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="category" class="form-select">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}"
+                                    {% if selectedCategory == category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.price|number_format(2, '.', ',') }} €</p>
+                            <p class="card-text">
+                                <span class="badge bg-primary">{{ product.category }}</span>
+                            </p>
+                            <p class="card-text">Stock: {{ product.stock }}</p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-sm btn-info">Details</a>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                                {% endif %}
+                                <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-sm btn-primary">Add to Cart</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% else %}
-            <div class="col">
-                <p>No products found</p>
-            </div>
-        {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">No products found</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="navigation">
+            {{ knp_pagination_render(products) }}
+        </div>
     </div>
-{% endblock %} 
+{% endblock %}

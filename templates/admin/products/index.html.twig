@@ -1,49 +1,73 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin - Products{% endblock %}
+{% block title %}Products{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>Gestion des Produits</h1>
-        
-        <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary mb-3">
-            <i class="bi bi-arrow-left"></i> Retour au tableau de bord
-        </a>
+    <div class="container mt-4">
+        <h1>Products</h1>
 
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                        <tr>
-                            <td>{{ product.id }}</td>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.price }} €</td>
-                            <td>{{ product.stock }}</td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-primary">
-                                    <i class="bi bi-pencil"></i> Edit
-                                </a>
-                                <a href="#" class="btn btn-sm btn-danger">
-                                    <i class="bi bi-trash"></i> Delete
-                                </a>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="5" class="text-center">No products found</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <form class="mb-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text"
+                           name="q"
+                           class="form-control"
+                           placeholder="Search by name..."
+                           value="{{ searchTerm }}">
+                </div>
+                <div class="col-md-4">
+                    <select name="category" class="form-select">
+                        <option value="">All categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category }}"
+                                    {% if selectedCategory == category %}selected{% endif %}>
+                                {{ category }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.price|number_format(2, '.', ',') }} €</p>
+                            <p class="card-text">
+                                <span class="badge bg-primary">{{ product.category }}</span>
+                            </p>
+                            <p class="card-text">Stock: {{ product.stock }}</p>
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-sm btn-info">Details</a>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                                {% endif %}
+                                <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-sm btn-primary">Add to Cart</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">No products found</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="navigation">
+            {{ knp_pagination_render(products) }}
         </div>
     </div>
 {% endblock %}

@@ -1,20 +1,35 @@
+{# templates/product/show.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block body %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h1 class="card-title">{{ product.name }}</h1>
-            <p class="card-text fs-4 fw-bold text-primary">{{ product.price|number_format(2, '.', ',') }} €</p>
-            <form action="{{ path('cart_add', {'id': product.id}) }}" method="get" class="mb-3">
-                <div class="input-group mb-3" style="max-width: 200px;">
-                    <span class="input-group-text">Quantity</span>
-                    <input type="number" name="quantity" value="1" min="1" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary">Add to Cart</button>
-            </form>
-            <a href="{{ path('app_product_index') }}" class="btn btn-secondary">Back to Products</a>
+    <div class="container mt-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h1 class="card-title">{{ product.name }}</h1>
+                <p class="card-text fs-4 fw-bold text-primary">{{ product.price|number_format(2, '.', ',') }} €</p>
+                <p class="card-text"><strong>Stock:</strong> {{ product.stock }}</p>
+                {% if product.description %}
+                    <div class="card-text mb-3">
+                        <h5>Description:</h5>
+                        <p>{{ product.description }}</p>
+                    </div>
+                {% endif %}
+
+                <form action="{{ path('cart_add', {'id': product.id}) }}" method="get" class="mb-3">
+                    <div class="input-group mb-3" style="max-width: 200px;">
+                        <span class="input-group-text">Quantity</span>
+                        <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add to Cart</button>
+                </form>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-warning">Edit</a>
+                {% endif %}
+                <a href="{{ path('app_product_index') }}" class="btn btn-secondary">Back to Products</a>
+            </div>
         </div>
     </div>
-{% endblock %} 
+{% endblock %}

@@ -23,7 +23,14 @@ class Product
 
     #[ORM\OneToMany(targetEntity: OrderItem::class, mappedBy: 'product')]
     private Collection $orderItems;
+    #[ORM\Column(type: 'integer')]
+    private $stock;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private $description;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private $category;
     public function __construct()
     {
         $this->orderItems = new ArrayCollection();
@@ -50,7 +57,6 @@ class Product
     {
         return $this->price;
     }
-
     public function setPrice(float $price): self
     {
         $this->price = $price;
@@ -85,6 +91,32 @@ class Product
             }
         }
 
+        return $this;
+    }
+    public function getStock(): ?int
+    {
+        return $this->stock;
+    }
+    public function getCategory(): ?string
+    {
+        return $this->category;
+    }
+    public function setStock(int $Stock): self
+    {
+        $this->stock = $Stock;
+        return $this;
+    }
+    public function getDescription(): ?string {
+        return $this->description;
+    }
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+    public function setCategory(string $category): self
+    {
+        $this->category = $category;
         return $this;
     }
 }
