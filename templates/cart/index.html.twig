@@ -26,14 +26,14 @@
                 {% for item in items %}
                     <tr>
                         <td>{{ item.product.name }}</td>
-                        <td>{{ item.product.price|number_format(2, '.', ',') }} €</td>
+                        <td>{{ item.product.price|number_format(2, '.', ',') }} DT</td>
                         <td>
                             <form action="{{ path('cart_update', {'id': item.product.id}) }}" method="post" class="form-inline">
                                 <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control mr-2" style="width: 70px">
                                 <button type="submit" class="btn btn-sm btn-primary">Update</button>
                             </form>
                         </td>
-                        <td>{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }} €</td>
+                        <td>{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }} DT</td>
                         <td><a href="{{ path('cart_remove', {'id': item.product.id}) }}" class="btn btn-sm btn-danger">Remove</a></td>
                     </tr>
                 {% endfor %}
@@ -41,7 +41,7 @@
                 <tfoot>
                 <tr>
                     <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                    <td><strong>{{ total|number_format(2, '.', ',') }} €</strong></td>
+                    <td><strong>{{ total|number_format(2, '.', ',') }} DT</strong></td>
                     <td></td>
                 </tr>
                 </tfoot>
