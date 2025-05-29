@@ -16,11 +16,10 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mime\Address;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private MailerInterface $mailer, private UrlGeneratorInterface $urlGenerator, private RequestStack $requestStack) {}
+    public function __construct(private MailerInterface $mailer, private UrlGeneratorInterface $urlGenerator) {}
 
     #[Route('/register', name: 'app_register')]
     public function register(
@@ -46,7 +45,6 @@ class RegistrationController extends AbstractController
             $token = bin2hex(random_bytes(32));
             $user->setVerificationToken($token);
             $user->setIsVerified(false);
-
 
             $entityManager->persist($user);
             $entityManager->flush();
