@@ -33,7 +33,7 @@ class AdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
         
         $products = $entityManager->getRepository(Product::class)->findAll();
-        return $this->render('admin/products/index.html.twig', [
+        return $this->render('admin/product/index.html.twig', [
             'products' => $products
         ]);
     }

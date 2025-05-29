@@ -31,6 +31,14 @@ class ProductController extends AbstractController
             $request->query->getInt('page', 1),
             $paginator
         );
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->render('admin/product/index.html.twig', [
+                'products' => $products,
+                'searchTerm' => $searchTerm,
+                'selectedCategory' => $category,
+                'categories' => $productRepository->getAvailableCategories(),
+            ]);
+        }
 
         // Check if user is admin
         if ($this->isGranted('ROLE_ADMIN')) {
@@ -47,16 +55,20 @@ class ProductController extends AbstractController
             'products' => $products,
             'searchTerm' => $searchTerm,
             'selectedCategory' => $category,
-            'categories' => $productRepository->getAvailableCategories()
+            'categories' => $productRepository->getAvailableCategories(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): Response
-    {
-        return $this->render('product/show.html.twig', [
+    { if ($this->isGranted('ROLE_ADMIN')) {
+        return $this->render('admin/product/show.html.twig',[
             'product' => $product,
         ]);
+    }
+       else{ return $this->render('product/show.html.twig', [
+            'product' => $product,
+        ]);}
     }
 
     #[Route('/admin/new', name: 'app_product_new', methods: ['GET', 'POST'])]
@@ -75,7 +87,7 @@ class ProductController extends AbstractController
             return $this->redirectToRoute('app_product_index');
         }
 
-        return $this->render('product/new.html.twig', [
+        return $this->render('admin/product/new.html.twig', [
             'form' => $form->createView(),
             'categories' => $this->getAvailableCategories()
         ]);
@@ -96,7 +108,7 @@ public function edit(
         return $this->redirectToRoute('app_product_index');
     }
 
-    return $this->render('product/edit.html.twig', [
+    return $this->render('admin/product/edit.html.twig', [
         'product' => $product,
         'form' => $form->createView(),
         'categories' => $this->getAvailableCategories()
