@@ -4,14 +4,12 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
-use App\Security\AppCustomAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -19,21 +17,23 @@ use Symfony\Component\Mime\Address;
 
 class RegistrationController extends AbstractController
 {
-    public function __construct(private MailerInterface $mailer, private UrlGeneratorInterface $urlGenerator) {}
+    public function __construct(
+        private MailerInterface $mailer,
+        private UrlGeneratorInterface $urlGenerator
+    ) {}
 
     #[Route('/register', name: 'app_register')]
     public function register(
-        Request $request, 
-        UserPasswordHasherInterface $userPasswordHasher, 
-        EntityManagerInterface $entityManager,
-        MailerInterface $mailer
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager
     ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
+            // Encode password
             $user->setPassword(
                 $userPasswordHasher->hashPassword(
                     $user,
@@ -41,46 +41,35 @@ class RegistrationController extends AbstractController
                 )
             );
 
-            // Generate verification token
+            // Set token + roles + isVerified
             $token = bin2hex(random_bytes(32));
             $user->setVerificationToken($token);
             $user->setIsVerified(false);
-
+            $user->setRoles(['ROLE_USER']);
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Generate verification URL
-            $verificationUrl = $this->generateUrl(
+            // Send email
+            $verificationUrl = $this->urlGenerator->generate(
                 'app_verify_email',
                 ['token' => $token],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );
 
-
-            // Send verification email
-            $context = [
-                'user' => $user,
-                'verificationUrl' => $this->urlGenerator->generate(
-                    'app_verify_email',
-                    ['token' => $user->getVerificationToken()],
-                    UrlGeneratorInterface::ABSOLUTE_URL
-                )
-            ];
-
             $email = (new Email())
                 ->from(new Address('mojo.2025.jojo@gmail.com', 'E-commerce'))
                 ->to(new Address($user->getEmail(), $user->getUsername()))
                 ->subject('Vérifiez votre email')
-                ->html($this->renderView(
-                    'emails/registration_verification.html.twig',
-                    $context
-                ));
+                ->html($this->renderView('emails/registration_verification.html.twig', [
+                    'user' => $user,
+                    'verificationUrl' => $verificationUrl,
+                ]));
 
             try {
                 $this->mailer->send($email);
                 $this->addFlash('success', 'Un email de vérification a été envoyé à votre adresse email.');
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Une erreur est survenue lors de l\'envoi de l\'email de vérification.');
+                $this->addFlash('error', 'Une erreur est survenue lors de l\'envoi de l\'email.');
             }
 
             return $this->redirectToRoute('check_email');
@@ -96,7 +85,7 @@ class RegistrationController extends AbstractController
     {
         return $this->render('registration/confirmation_email.html.twig');
     }
-    
+
     #[Route('/verify/email/{token}', name: 'app_verify_email')]
     public function verifyEmail(string $token, EntityManagerInterface $entityManager): Response
     {
@@ -116,8 +105,7 @@ class RegistrationController extends AbstractController
         $user->setVerificationToken(null);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Votre email a été vérifié avec succès. Vous pouvez maintenant vous connecter.');
-
+        $this->addFlash('success', 'Email vérifié avec succès. Vous pouvez vous connecter.');
         return $this->redirectToRoute('app_login');
     }
 }

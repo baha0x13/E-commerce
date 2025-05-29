@@ -32,7 +32,18 @@ class ProductController extends AbstractController
             $paginator
         );
 
-        return $this->render('product/index.html.twig', [
+        // Check if user is admin
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->render('product/index.html.twig', [
+                'products' => $products,
+                'searchTerm' => $searchTerm,
+                'selectedCategory' => $category,
+                'categories' => $productRepository->getAvailableCategories()
+            ]);
+        }
+
+        // For regular users
+        return $this->render('product/user.html.twig', [
             'products' => $products,
             'searchTerm' => $searchTerm,
             'selectedCategory' => $category,

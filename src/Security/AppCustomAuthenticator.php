@@ -15,6 +15,7 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 {
@@ -22,9 +23,10 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
-    {
-    }
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator,
+        private RequestStack $requestStack
+    ) {}
 
     public function authenticate(Request $request): Passport
     {
@@ -54,12 +56,11 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // Redirect based on user role
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
-        } else {
-            return new RedirectResponse($this->urlGenerator->generate('user_dashboard'));
         }
+
+        return new RedirectResponse($this->urlGenerator->generate('user_dashboard'));
     }
 
     protected function getLoginUrl(Request $request): string
@@ -75,4 +76,3 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
         }
     }
 }
-
