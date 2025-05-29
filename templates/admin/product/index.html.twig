@@ -37,6 +37,13 @@
                 </div>
             </div>
         </form>
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="mb-3 text-end">
+                <a href="{{ path('app_product_new') }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Add Product
+                </a>
+            </div>
+        {% endif %}
 
         <div class="row">
             {% for product in products %}
@@ -51,11 +58,43 @@
                             <p class="card-text">Stock: {{ product.stock }}</p>
                             <div class="d-flex justify-content-between">
                                 <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-sm btn-info">Details</a>
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal{{ product.id }}">
+                                        Delete
+                                    </button>
+                                {% endif %}
+
                                 <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-sm btn-primary">Add to Cart</a>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- Delete Confirmation Modal -->
+                <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ product.id }}">Confirm Deletion</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to delete <strong>{{ product.name }}</strong>?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                                    <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
             {% else %}
                 <div class="col-12">
                     <div class="alert alert-info">No products found</div>
@@ -63,7 +102,7 @@
             {% endfor %}
         </div>
 
-        <div class="navigation d-flex justify-content-center mt-4">
+        <div class="navigation">
             {{ knp_pagination_render(products) }}
         </div>
     </div>
