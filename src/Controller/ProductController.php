@@ -69,30 +69,28 @@ class ProductController extends AbstractController
             'categories' => $this->getAvailableCategories()
         ]);
     }
-
     #[Route('/admin/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function edit(
-        Request $request,
-        Product $product,
-        EntityManagerInterface $entityManager
-    ): Response {
-        $form = $this->createForm(ProductType::class, $product);
-        $form->handleRequest($request);
+#[IsGranted('ROLE_ADMIN')]
+public function edit(
+    Request $request, 
+    Product $product,
+    EntityManagerInterface $entityManager
+): Response {
+    $form = $this->createForm(ProductType::class, $product);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Product updated successfully!');
-            return $this->redirectToRoute('app_product_index');
-        }
-
-        return $this->render('product/edit.html.twig', [
-            'form' => $form->createView(),
-            'product' => $product,
-            'categories' => $this->getAvailableCategories()
-        ]);
+    if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager->flush();
+        $this->addFlash('success', 'Product updated successfully!');
+        return $this->redirectToRoute('app_product_index');
     }
+
+    return $this->render('product/edit.html.twig', [
+        'product' => $product,
+        'form' => $form->createView(),
+        'categories' => $this->getAvailableCategories()
+    ]);
+}
 
     #[Route('/admin/{id}/delete', name: 'app_product_delete', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
