@@ -64,9 +64,23 @@ class CartController extends AbstractController
     }
     
     #[Route('/update/{id}', name: 'update')]
-    public function update(int $id, Request $request, CartService $cartService): Response
+    public function update(int $id, Request $request, CartService $cartService, EntityManagerInterface $entityManager): Response
     {
+        $product = $entityManager->getRepository(Product::class)->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Product not found');
+        }
+
         $quantity = (int) $request->request->get('quantity');
+        
+        // Stock validation added here
+        if ($quantity > $product->getStock()) {
+            $this->addFlash('error', sprintf('Only %d available in stock for %s!', 
+                $product->getStock(), 
+                $product->getName()
+            ));
+            return $this->redirectToRoute('cart_index');
+        }
         
         if ($quantity > 0) {
             $cartService->updateQuantity($id, $quantity);
