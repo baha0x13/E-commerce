@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Edit User</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">User Information</h5>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Roles</label>
+                        <div class="form-check">
+                            <input type="checkbox" name="roles[]" value="ROLE_USER" class="form-check-input"
+                                   {% if 'ROLE_USER' in user.roles %}checked{% endif %} disabled>
+                            <label class="form-check-label">ROLE_USER</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" name="roles[]" value="ROLE_ADMIN" class="form-check-input"
+                                   {% if 'ROLE_ADMIN' in user.roles %}checked{% endif %}>
+                            <label class="form-check-label">ROLE_ADMIN</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" name="isVerified" class="form-check-input"
+                                   {% if user.isVerified %}checked{% endif %}>
+                            <label class="form-check-label">Email Verified</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a href="{{ path('admin_users') }}" class="btn btn-secondary">Back to List</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %} 

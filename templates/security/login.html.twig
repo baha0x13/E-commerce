@@ -3,29 +3,113 @@
 {% block title %}Login{% endblock %}
 
 {% block body %}
-    <h1>Connexion</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h1 class="text-center mb-4">Sign In</h1>
 
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
 
-    <form action="{{ path('app_login') }}" method="post">
-        <label for="username">Username :</label>
-        <input type="text" id="username" name="username" value="{{ last_username }}" required autofocus>
+                    <form action="{{ path('app_login') }}" method="post" class="needs-validation">
+                        <div class="mb-3">
+                            <label for="_username" class="form-label">Username</label>
+                            <input type="text" id="_username" name="_username" 
+                                   class="form-control" 
+                                   value="{{ last_username }}" 
+                                   required 
+                                   autofocus
+                                   placeholder="Enter your username">
+                        </div>
 
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" name="password" required>
+                        <div class="mb-3">
+                            <label for="_password" class="form-label">Password</label>
+                            <input type="password" id="_password" name="_password" 
+                                   class="form-control" 
+                                   required
+                                   placeholder="Enter your password">
+                        </div>
 
-        <div class="checkbox mb-3">
-            <label>
-                <input type="checkbox" name="_remember_me" checked> Se souvenir de moi
-            </label>
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" id="remember_me" name="_remember_me" class="form-check-input" checked>
+                                <label for="remember_me" class="form-check-label">Remember me</label>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">Sign In</button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="mb-0">Don't have an account? <a href="{{ path('app_register') }}" class="text-decoration-none">Register</a></p>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
 
-        <input type="hidden" name="_csrf_token"
-               value="{{ csrf_token('authenticate') }}"
-        >
-
-        <button type="submit">Se connecter</button>
-    </form>
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .card-body {
+        border-radius: 15px;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+        border-color: #80bdff;
+    }
+    
+    .btn-primary {
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+    
+    .alert {
+        border-radius: 8px;
+    }
+    
+    h1 {
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    a {
+        color: #0d6efd;
+    }
+    
+    a:hover {
+        color: #0a58ca;
+    }
+</style>
 {% endblock %}

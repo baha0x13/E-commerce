@@ -2,7 +2,6 @@
 
 namespace App\Security;
 
-use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,28 +22,18 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(
-        private UrlGeneratorInterface $urlGenerator,
-        private UserRepository $userRepository
-    ) {
-    }
-
-    public function supports(Request $request): bool
+    public function __construct(private UrlGeneratorInterface $urlGenerator)
     {
-        return $request->attributes->get('_route') === self::LOGIN_ROUTE
-            && $request->isMethod('POST');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $username = $request->request->get('username', '');
+        $username = $request->request->get('_username', '');
         $request->getSession()->set(Security::LAST_USERNAME, $username);
 
         return new Passport(
-            new UserBadge($username, function($userIdentifier) {
-                return $this->userRepository->findByUsername($userIdentifier);
-            }),
-            new PasswordCredentials($request->request->get('password', '')),
+            new UserBadge($username),
+            new PasswordCredentials($request->request->get('_password', '')),
             [
                 new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
                 new RememberMeBadge(),
@@ -54,22 +43,36 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
+        $user = $token->getUser();
+
+        if (!$user->isVerified()) {
+            $this->addFlash('error', 'Veuillez vérifier votre email avant de vous connecter.');
+            return new RedirectResponse($this->urlGenerator->generate('app_login'));
+        }
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
 
-        // For admin users, redirect to admin dashboard
-        if (in_array('ROLE_ADMIN', $token->getRoleNames())) {
+        // Redirect based on user role
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
             return new RedirectResponse($this->urlGenerator->generate('admin_dashboard'));
+        } else {
+            return new RedirectResponse($this->urlGenerator->generate('user_dashboard'));
         }
-
-        // For regular users, redirect to home
-        return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 
     protected function getLoginUrl(Request $request): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
+    }
+
+    private function addFlash(string $type, string $message): void
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request) {
+            $request->getSession()->getFlashBag()->add($type, $message);
+        }
     }
 }
 

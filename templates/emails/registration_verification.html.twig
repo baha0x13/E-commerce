@@ -29,16 +29,21 @@
     </style>
 </head>
 <body>
-    <h1>Bienvenue sur notre site !</h1>
-    
-    <p>Merci de vous être inscrit. Pour activer votre compte, veuillez vérifier votre boîte de réception.</p>
+    <h2>Confirmation de votre inscription</h2>
+    <p>Bonjour {{ user.username }},</p>
+
+    <p>Merci pour votre inscription. Pour la valider, cliquez sur le lien ci-dessous :</p>
+
+    <p>
+        <a href="{{ verificationUrl }}" target="_blank">
+            👉 Confirmer mon inscription
+        </a>
+    </p>
+
+    <p>Si vous n'avez pas fait d'inscription, ignorez ce message.</p>
     
     <div class="footer">
-        <p>Si vous n'avez pas reçu l'email de vérification :</p>
-        <ul>
-            <li>Vérifiez votre dossier spam</li>
-            <li>Assurez-vous que l'adresse email est correcte</li>
-        </ul>
+        <p>Si vous n'avez pas créé de compte, vous pouvez ignorer cet email.</p>
     </div>
 </body>
 </html>
