@@ -88,4 +88,14 @@ class AdminController extends AbstractController
             'user' => $user
         ]);
     }
+
+    #[Route('/orders/{id}', name: 'admin_order_show', methods: ['GET'])]
+    public function showOrder(Order $order): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        return $this->render('admin/orders/show.html.twig', [
+            'order' => $order
+        ]);
+    }
 }

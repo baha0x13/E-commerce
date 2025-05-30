@@ -4,10 +4,10 @@
 
 {% block body %}
     <div class="container">
-        <h1>Gestion des Commandes</h1>
+        <h1>Commands Management</h1>
         
         <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary mb-3">
-            <i class="bi bi-arrow-left"></i> Retour au tableau de bord
+            <i class="bi bi-arrow-left"></i> Go back to Dashboard
         </a>
 
         <div class="table-responsive">
@@ -29,9 +29,9 @@
                             <td>{{ order.user.username }}</td>
                             <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
                             <td>{{ order.status }}</td>
-                            <td>{{ order.total }} €</td>
+                            <td>{{ order.total }} DT</td>
                             <td>
-                                <a href="#" class="btn btn-sm btn-primary">
+                                <a href="{{ path('admin_order_show', {id: order.id}) }}" class="btn btn-info btn-sm">
                                     <i class="bi bi-eye"></i> View
                                 </a>
                             </td>

@@ -30,11 +30,6 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
-                        {% if app.user %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ path('app_product_index') }}">Products</a>
-                            </li>
-                        {% endif %}
                     </ul>
                     <ul class="navbar-nav">
                         {% if app.user %}

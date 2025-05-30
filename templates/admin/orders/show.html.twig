@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">
+                    <i class="bi bi-receipt"></i> Order #{{ order.id }}
+                </h2>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">Status:</dt>
+                    <dd class="col-sm-9">
+                        <span class="badge bg-info text-dark">{{ order.status }}</span>
+                    </dd>
+
+                    <dt class="col-sm-3">Customer:</dt>
+                    <dd class="col-sm-9">
+                        {% if order.user %}
+                            <i class="bi bi-person"></i> {{ order.user.username }}
+                        {% else %}
+                            <span class="text-muted">Unknown</span>
+                        {% endif %}
+                    </dd>
+
+                    <dt class="col-sm-3">Total:</dt>
+                    <dd class="col-sm-9">
+                        <strong>{{ order.total|number_format(2) }} DT</strong>
+                    </dd>
+
+                    <dt class="col-sm-3">Created at:</dt>
+                    <dd class="col-sm-9">
+                        {{ order.createdAt|date('Y-m-d H:i') }}
+                    </dd>
+                </dl>
+
+                <hr>
+                <a href="{{ path('admin_orders') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

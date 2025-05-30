@@ -4,10 +4,10 @@
 
 {% block body %}
     <div class="container">
-        <h1 class="mb-4">Tableau de bord Admin</h1>
+        <h1 class="mb-4">Admin Dashboard</h1>
 
         <div class="alert alert-info">
-            <i class="bi bi-person-circle"></i> Bienvenue sur le tableau de bord, {{ app.user.username }} !
+            <i class="bi bi-person-circle"></i> Welcome to the Dashboard {{ app.user.username }}!
         </div>
 
         <div class="row">
@@ -15,11 +15,11 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <i class="bi bi-box"></i> Produits
+                            <i class="bi bi-box"></i> Products
                         </h5>
-                        <p class="card-text">Gérez votre catalogue de produits, ajoutez de nouveaux articles et modifiez les existants.</p>
+                        <p class="card-text">Manage your product catalog, add new items, and edit existing ones.</p>
                         <a href="{{ path('app_product_index') }}" class="btn btn-primary">
-                            <i class="bi bi-box"></i> Gérer les produits
+                            <i class="bi bi-box"></i> Manage Products
                         </a>
                     </div>
                 </div>
@@ -29,11 +29,11 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <i class="bi bi-cart"></i> Commandes
+                            <i class="bi bi-cart"></i> Orders
                         </h5>
-                        <p class="card-text">Consultez et gérez les commandes de vos clients, suivez leur statut.</p>
+                        <p class="card-text">View and manage your customers' orders, track their status.</p>
                         <a href="{{ path('admin_orders') }}" class="btn btn-primary">
-                            <i class="bi bi-cart"></i> Gérer les commandes
+                            <i class="bi bi-cart"></i> Manage Orders
                         </a>
                     </div>
                 </div>
@@ -43,11 +43,11 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title">
-                            <i class="bi bi-people"></i> Utilisateurs
+                            <i class="bi bi-people"></i> Users
                         </h5>
-                        <p class="card-text">Gérez les comptes utilisateurs, modifiez les rôles et les permissions.</p>
+                        <p class="card-text">Manage user accounts, edit roles and permissions.</p>
                         <a href="{{ path('admin_users') }}" class="btn btn-primary">
-                            <i class="bi bi-people"></i> Gérer les utilisateurs
+                            <i class="bi bi-people"></i> Manage Users
                         </a>
                     </div>
                 </div>

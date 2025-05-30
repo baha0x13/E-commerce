@@ -61,14 +61,16 @@ class ProductController extends AbstractController
 
     #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): Response
-    { if ($this->isGranted('ROLE_ADMIN')) {
-        return $this->render('admin/product/show.html.twig',[
+    {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->render('admin/product/show.html.twig', [
+                'product' => $product,
+            ]);
+        }
+        // Regular users see the user template (no edit button)
+        return $this->render('product/show.html.twig', [
             'product' => $product,
         ]);
-    }
-       else{ return $this->render('product/show.html.twig', [
-            'product' => $product,
-        ]);}
     }
 
     #[Route('/admin/new', name: 'app_product_new', methods: ['GET', 'POST'])]

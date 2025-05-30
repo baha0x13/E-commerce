@@ -42,7 +42,7 @@ class UserDashboardController extends AbstractController
         $paginator
     );
 
-    return $this->render('product/index.html.twig', [
+    return $this->render('product/user.html.twig', [
         'products' => $products,
         'searchTerm' => $searchTerm,
         'selectedCategory' => $category,
