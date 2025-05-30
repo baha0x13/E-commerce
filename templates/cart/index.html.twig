@@ -3,93 +3,128 @@
 {% block title %}Your Shopping Cart{% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Your Shopping Cart</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="mb-4 text-center"><i class="bi bi-cart4"></i> Your Shopping Cart</h1>
 
-        {# Added error flash messages display #}
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-danger">{{ message }}</div>
-        {% endfor %}
+            {# Flash messages #}
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
 
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success">{{ message }}</div>
-        {% endfor %}
-
-        {% if items|length > 0 %}
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Product</th><th>Price</th><th>Quantity</th><th>Subtotal</th><th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for item in items %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>{{ item.product.price|number_format(2, '.', ',') }} DT</td>
-                        <td>
-                            <form action="{{ path('cart_update', {'id': item.product.id}) }}" method="post" class="form-inline">
-                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control mr-2" style="width: 70px">
-                                <button type="submit" class="btn btn-sm btn-primary">Update</button>
-                            </form>
-                        </td>
-                        <td>{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }} DT</td>
-                        <td><a href="{{ path('cart_remove', {'id': item.product.id}) }}" class="btn btn-sm btn-danger">Remove</a></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-                <tfoot>
-                <tr>
-                    <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                    <td><strong>{{ total|number_format(2, '.', ',') }} DT</strong></td>
-                    <td></td>
-                </tr>
-                </tfoot>
-            </table>
-
-            <div class="d-flex justify-content-between mt-3">
-                <a href="{{ path('cart_clear') }}" class="btn btn-warning">Clear Cart</a>
-                <button id="orderButton" class="btn btn-success">Order Now</button>
-            </div>
-        {% else %}
-            <div class="alert alert-info">
-                Your cart is empty. <a href="{{ path('app_product_index') }}">Browse our products</a>.
-            </div>
-        {% endif %}
+            {% if items|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle shadow-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td class="fw-semibold">{{ item.product.name }}</td>
+                                <td>{{ item.product.price|number_format(2, '.', ',') }} DT</td>
+                                <td>
+                                    <form action="{{ path('cart_update', {'id': item.product.id}) }}" method="post" class="d-flex align-items-center gap-2">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control" style="width: 70px">
+                                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                    </form>
+                                </td>
+                                <td>{{ (item.product.price * item.quantity)|number_format(2, '.', ',') }} DT</td>
+                                <td>
+                                    <a href="{{ path('cart_remove', {'id': item.product.id}) }}" class="btn btn-sm btn-danger">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td><strong>{{ total|number_format(2, '.', ',') }} DT</strong></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ path('cart_clear') }}" class="btn btn-warning">
+                        <i class="bi bi-x-circle"></i> Clear Cart
+                    </a>
+                    <button id="orderButton" class="btn btn-success">
+                        <i class="bi bi-bag-check"></i> Order Now
+                    </button>
+                </div>
+            {% else %}
+                <div class="d-flex flex-column align-items-center justify-content-center py-5">
+                    <i class="bi bi-cart-x display-1 text-secondary mb-3"></i>
+                    <div class="alert alert-info text-center w-50 mx-auto">
+                        <h4 class="mb-2">Your cart is empty.</h4>
+                        <div class="spinner-border text-primary mt-3" role="status">
+                          <span class="visually-hidden">Redirecting...</span>
+                        </div>
+                        <div class="mt-2 text-muted">Redirecting you to products...</div>
+                    </div>
+                </div>
+                <script>
+                    // Redirect after 2 seconds depending on user role
+                    {% if app.user and 'ROLE_ADMIN' in app.user.roles %}
+                        window.setTimeout(function() {
+                            window.location.href = "{{ path('app_product_index') }}";
+                        }, 2000);
+                    {% else %}
+                        window.setTimeout(function() {
+                            window.location.href = "{{ path('user_products') }}";
+                        }, 2000);
+                    {% endif %}
+                </script>
+            {% endif %}
+        </div>
     </div>
+</div>
 
-    {% block javascripts %}
-        <script>
-            document.getElementById('orderButton')?.addEventListener('click', async () => {
-                const cart = {};
-                document.querySelectorAll('tbody tr').forEach(row => {
-                    const form = row.querySelector('form');
-                    const productId = form?.action.split('/').pop();
-                    const quantity = parseInt(row.querySelector('input[name="quantity"]').value);
-                    if (productId && quantity > 0) cart[productId] = quantity;
+{% block javascripts %}
+    <script>
+        document.getElementById('orderButton')?.addEventListener('click', async () => {
+            const cart = {};
+            document.querySelectorAll('tbody tr').forEach(row => {
+                const form = row.querySelector('form');
+                const productId = form?.action.split('/').pop();
+                const quantity = parseInt(row.querySelector('input[name="quantity"]').value);
+                if (productId && quantity > 0) cart[productId] = quantity;
+            });
+
+            if (Object.keys(cart).length === 0) return alert('Your cart is empty!');
+
+            try {
+                const response = await fetch('{{ path('order_create') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(cart)
                 });
 
-                if (Object.keys(cart).length === 0) return alert('Your cart is empty!');
-
-                try {
-                    const response = await fetch('{{ path('order_create') }}', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify(cart)
-                    });
-
-                    const data = await response.json();
-                    if (data.orderId) {
-                        await fetch('{{ path('cart_clear') }}');
-                        window.location.href = '{{ path('check_email') }}'
-                    } else {
-                        throw new Error(data.error || 'Unknown error occurred');
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert('Error creating order: ' + error.message);
+                const data = await response.json();
+                if (data.orderId) {
+                    await fetch('{{ path('cart_clear') }}');
+                    window.location.href = '{{ path('check_email') }}'
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
                 }
-            });
-        </script>
-    {% endblock %}
+            } catch (error) {
+                console.error(error);
+                alert('Error creating order: ' + error.message);
+            }
+        });
+    </script>
+{% endblock %}
 {% endblock %}

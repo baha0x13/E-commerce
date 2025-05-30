@@ -23,7 +23,8 @@ class AdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         return $this->render('admin/index.html.twig', [
-            'controller_name' => 'AdminController',
+            'browseProductsRoute' => 'app_product_index', // admin route
+            // ...other variables if needed
         ]);
     }
 

@@ -12,8 +12,10 @@
             {% if app.user %}
                 <div class="mb-4">
                     <p class="h4 mb-4">Welcome back, {{ app.user.username }}!</p>
-                    <a href="{{ path('app_product_index') }}" class="btn btn-primary btn-lg me-3">Browse Products</a>
-                    {% if is_granted('ROLE_ADMIN') %}
+                    <a href="{{ path(seeProductsRoute) }}" class="btn btn-primary btn-lg me-3">
+                        See Our Products
+                    </a>
+                    {% if isAdmin %}
                         <a href="{{ path('admin_dashboard') }}" class="btn btn-secondary btn-lg">Admin Dashboard</a>
                     {% endif %}
                 </div>
@@ -26,4 +28,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

@@ -38,12 +38,7 @@
                         </form>
 
                         <div class="d-flex justify-content-between">
-                            {% if is_granted('ROLE_ADMIN') %}
-                                <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-warning">
-                                    <i class="bi bi-pencil-square"></i> Edit
-                                </a>
-                            {% endif %}
-                            <a href="{{ path('app_product_index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ path(backToProductsRoute) }}" class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-left"></i> Back to Products
                             </a>
                         </div>

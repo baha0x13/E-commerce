@@ -11,19 +11,18 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(): Response
     {
-        // Get the current user
         $user = $this->getUser();
-        
-        // If user is logged in, redirect based on role
-        if ($user) {
-            if (in_array('ROLE_ADMIN', $user->getRoles())) {
-                return $this->redirectToRoute('admin_dashboard');
-            } else {
-                return $this->redirectToRoute('user_dashboard');
-            }
+        $seeProductsRoute = 'user_products'; // default for users
+        $isAdmin = false;
+
+        if ($user && in_array('ROLE_ADMIN', $user->getRoles())) {
+            $seeProductsRoute = 'app_product_index'; // admin route
+            $isAdmin = true;
         }
-        
-        // If no user is logged in, show the home page
-        return $this->render('home/index.html.twig');
+
+        return $this->render('home/index.html.twig', [
+            'seeProductsRoute' => $seeProductsRoute,
+            'isAdmin' => $isAdmin,
+        ]);
     }
-} 
+}

@@ -31,26 +31,19 @@ class ProductController extends AbstractController
             $request->query->getInt('page', 1),
             $paginator
         );
+
+        // Check if user is admin
         if ($this->isGranted('ROLE_ADMIN')) {
             return $this->render('admin/product/index.html.twig', [
                 'products' => $products,
                 'searchTerm' => $searchTerm,
                 'selectedCategory' => $category,
                 'categories' => $productRepository->getAvailableCategories(),
+                'seeProductsRoute' => 'app_product_index', // <-- add this line
             ]);
         }
 
-        // Check if user is admin
-        if ($this->isGranted('ROLE_ADMIN')) {
-            return $this->render('product/index.html.twig', [
-                'products' => $products,
-                'searchTerm' => $searchTerm,
-                'selectedCategory' => $category,
-                'categories' => $productRepository->getAvailableCategories()
-            ]);
-        }
-
-        // For regular users
+        else{// For regular users
         return $this->render('product/user.html.twig', [
             'products' => $products,
             'searchTerm' => $searchTerm,
@@ -58,18 +51,26 @@ class ProductController extends AbstractController
             'categories' => $productRepository->getAvailableCategories(),
         ]);
     }
+    }
 
     #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): Response
     {
-        if ($this->isGranted('ROLE_ADMIN')) {
+        $user = $this->getUser();
+        $backToProductsRoute = 'user_products'; // default for users
+
+        if ($user && in_array('ROLE_ADMIN', $user->getRoles())) {
+            $backToProductsRoute = 'app_product_index'; // admin route
             return $this->render('admin/product/show.html.twig', [
                 'product' => $product,
+                'backToProductsRoute' => $backToProductsRoute,
             ]);
         }
-        // Regular users see the user template (no edit button)
+
+        // Regular users
         return $this->render('product/show.html.twig', [
             'product' => $product,
+            'backToProductsRoute' => $backToProductsRoute,
         ]);
     }
 
