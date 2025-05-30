@@ -72,7 +72,7 @@ class RegistrationController extends AbstractController
                 $this->addFlash('error', 'Une erreur est survenue lors de l\'envoi de l\'email.');
             }
 
-            return $this->redirectToRoute('check_email');
+            return $this->redirectToRoute('check_email_reg');
         }
 
         return $this->render('registration/register.html.twig', [
@@ -80,7 +80,7 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    #[Route('/registration/check-email', name: 'check_email', methods: ['GET'])]
+    #[Route('/registration/check-email', name: 'check_email_reg', methods: ['GET'])]
     public function checkEmail(): Response
     {
         return $this->render('registration/confirmation_email.html.twig');
