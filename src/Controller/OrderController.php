@@ -97,7 +97,6 @@ class OrderController extends AbstractController
     {
         $order = $this->em->getRepository(Order::class)->findOneBy(['verificationToken' => $token]);
 
-
         if (!$order) {
             return $this->redirectToRoute('app_order');
         }
@@ -105,20 +104,17 @@ class OrderController extends AbstractController
         if ($order->getStatus() === 'en_attente') {
             $order->setStatus('en_attente_paiement');
             $this->em->flush();
-
             return $this->redirectToRoute('order_payment', ['id' => $order->getId()]);
         }
 
         if ($order->getStatus() === 'en_attente_confirmation_payment') {
             $order->setStatus('confirme');
             $this->em->flush();
-
             return $this->redirectToRoute('order_confirmed', ['id' => $order->getId()]);
         }
 
         return $this->redirectToRoute('order_user');
     }
-
 
     #[Route('/order/check-email', name: 'check_email', methods: ['GET'])]
     public function checkEmail(): Response
@@ -141,11 +137,10 @@ class OrderController extends AbstractController
     }
 
     #[Route('/order/{id}/payment', name: 'order_payment', methods: ['GET', 'POST'])]
-    public function payment(Order $order, Request $request,MailerInterface $mailer): Response
+    public function payment(Order $order, Request $request, MailerInterface $mailer): Response
     {
         $user = $this->security->getUser();
 
-        // Check if user owns this order and order is awaiting payment
         if ($order->getUser() !== $user || $order->getStatus() !== 'en_attente_paiement') {
             throw $this->createAccessDeniedException('Unauthorized access to payment page.');
         }
@@ -168,7 +163,6 @@ class OrderController extends AbstractController
                 $this->addFlash('error', 'Invalid Credentials.');
             }
             else {
-                // Simulate success: update order status etc.
                 $order->setStatus('en_attente_confirmation_payment');
                 $this->em->flush();
                 $context = [
@@ -181,7 +175,6 @@ class OrderController extends AbstractController
                     )
                 ];
 
-
                 $email = (new TemplatedEmail())
                     ->from('mojo.2025.jojo@gmail.com')
                     ->to($user->getEmail())
@@ -191,11 +184,9 @@ class OrderController extends AbstractController
 
                 $mailer->send($email);
 
-                // 3. Redirect to a "check your email" page
                 return $this->redirectToRoute('check_email');
             }
         }
-
 
         return $this->render('order/payment.html.twig', [
             'order' => $order,
@@ -217,5 +208,24 @@ class OrderController extends AbstractController
     public function index(): Response
     {
         return $this->render('order/index.html.twig');
+    }
+
+    #[Route('/admin/orders/{id}/delete', name: 'admin_order_delete', methods: ['POST'])]
+    public function deleteOrder(Request $request, Order $order): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$order->getId(), $request->request->get('_token'))) {
+            foreach ($order->getOrderItems() as $item) {
+                $this->em->remove($item);
+            }
+            
+            $this->em->remove($order);
+            $this->em->flush();
+            
+            $this->addFlash('success', 'Order deleted successfully.');
+        } else {
+            $this->addFlash('error', 'Invalid CSRF token.');
+        }
+
+        return $this->redirectToRoute('admin_orders');
     }
 }

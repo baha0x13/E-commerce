@@ -24,6 +24,7 @@ class AdminController extends AbstractController
 
         return $this->render('admin/index.html.twig', [
             'browseProductsRoute' => 'app_product_index', // admin route
+            'seeProductsRoute' => 'app_product_index', // <-- add this line
             // ...other variables if needed
         ]);
     }
