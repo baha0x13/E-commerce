@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class AddProductsCommand extends Command
 {
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
@@ -35,56 +35,64 @@ class AddProductsCommand extends Command
                 'price' => 999.99,
                 'stock' => 50,
                 'description' => '13.4" FHD+ laptop with 11th Gen Intel Core i7',
-                'category' => 'Electronics'
+                'category' => 'Electronics',
+                'photo' => 'dell.jpg'
             ],
             [
                 'name' => 'iPhone 13',
                 'price' => 799.00,
                 'stock' => 100,
                 'description' => '6.1-inch Super Retina XDR display with A15 Bionic chip',
-                'category' => 'Electronics'
+                'category' => 'Electronics',
+                'photo' => 'iphone.jpg'
             ],
             [
                 'name' => 'Samsung Galaxy S21',
                 'price' => 749.99,
                 'stock' => 75,
                 'description' => '5G smartphone with 64MP camera and 8K video',
-                'category' => 'Electronics'
+                'category' => 'Electronics',
+                'photo' => 'galaxy.jpg'
             ],
             [
                 'name' => 'Sony PlayStation 5',
                 'price' => 499.99,
                 'stock' => 30,
                 'description' => 'Next-gen gaming console with ultra-high speed SSD',
-                'category' => 'Gaming'
+                'category' => 'Gaming',
+                'photo' => 'ps5.jpg'
             ],
             [
                 'name' => 'Nintendo Switch',
                 'price' => 299.99,
                 'stock' => 60,
                 'description' => 'Hybrid gaming console for home and on-the-go play',
-                'category' => 'Gaming'
+                'category' => 'Gaming',
+                'photo' => 'switch.jpg'
             ],
             [
                 'name' => 'Logitech MX Master 3',
                 'price' => 99.99,
                 'stock' => 120,
                 'description' => 'Advanced wireless mouse with ultra-fast scrolling',
-                'category' => 'Accessories'
+                'category' => 'Accessories',
+                'photo' => 'logitik.jpg'
             ],
             [
                 'name' => 'Ergonomic Office Chair',
                 'price' => 249.99,
                 'stock' => 25,
                 'description' => 'Comfortable chair with lumbar support and adjustable arms',
-                'category' => 'Furniture'
+                'category' => 'Furniture',
+                'photo' => 'chair.jpg'
             ],
             [
                 'name' => 'Wireless Charging Pad',
                 'price' => 29.99,
                 'stock' => 200,
                 'description' => 'Qi-certified fast charging pad for smartphones',
-                'category' => 'Accessories'
+                'category' => 'Accessories',
+                'photo' => 'pad.jpg'
             ],
         ];
 
@@ -108,6 +116,15 @@ class AddProductsCommand extends Command
             $product->setDescription($productData['description']);
             $product->setCategory($productData['category']);
 
+            if (!empty($productData['photo'])) {
+                $photoPath = __DIR__ . '/../../public/uploads/' . $productData['photo'];
+                if (file_exists($photoPath)) {
+                    $product->setPhoto($productData['photo']);
+                } else {
+                    $io->warning(sprintf('Photo file not found: %s', $photoPath));
+                }
+            }
+
             $this->entityManager->persist($product);
             $addedCount++;
             $io->text(sprintf('Added product: <info>%s</info>', $productData['name']));
@@ -120,7 +137,7 @@ class AddProductsCommand extends Command
         $io->success([
             sprintf('Added %d new products', $addedCount),
             sprintf('Skipped %d existing products', $skippedCount),
-            sprintf('Total products in database: %d', count($products))
+            sprintf('Total products processed: %d', count($products))
         ]);
 
         return Command::SUCCESS;
