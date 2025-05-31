@@ -10,8 +10,11 @@ use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/product')]
 class ProductController extends AbstractController
@@ -32,42 +35,38 @@ class ProductController extends AbstractController
             $paginator
         );
 
-        // Check if user is admin
         if ($this->isGranted('ROLE_ADMIN')) {
             return $this->render('admin/product/index.html.twig', [
                 'products' => $products,
                 'searchTerm' => $searchTerm,
                 'selectedCategory' => $category,
                 'categories' => $productRepository->getAvailableCategories(),
-                'seeProductsRoute' => 'app_product_index', // <-- add this line
+                'seeProductsRoute' => 'app_product_index',
+            ]);
+        } else {
+            return $this->render('product/user.html.twig', [
+                'products' => $products,
+                'searchTerm' => $searchTerm,
+                'selectedCategory' => $category,
+                'categories' => $productRepository->getAvailableCategories(),
             ]);
         }
-
-        else{// For regular users
-        return $this->render('product/user.html.twig', [
-            'products' => $products,
-            'searchTerm' => $searchTerm,
-            'selectedCategory' => $category,
-            'categories' => $productRepository->getAvailableCategories(),
-        ]);
-    }
     }
 
     #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
     public function show(Product $product): Response
     {
         $user = $this->getUser();
-        $backToProductsRoute = 'user_products'; // default for users
+        $backToProductsRoute = 'user_products';
 
         if ($user && in_array('ROLE_ADMIN', $user->getRoles())) {
-            $backToProductsRoute = 'app_product_index'; // admin route
+            $backToProductsRoute = 'app_product_index';
             return $this->render('admin/product/show.html.twig', [
                 'product' => $product,
                 'backToProductsRoute' => $backToProductsRoute,
             ]);
         }
 
-        // Regular users
         return $this->render('product/show.html.twig', [
             'product' => $product,
             'backToProductsRoute' => $backToProductsRoute,
@@ -76,13 +75,32 @@ class ProductController extends AbstractController
 
     #[Route('/admin/new', name: 'app_product_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_ADMIN')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $photoFile */
+            $photoFile = $form->get('photo')->getData();
+
+            if ($photoFile) {
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                try {
+                    $photoFile->move(
+                        $this->getParameter('product_images_directory'),
+                        $newFilename
+                    );
+                    $product->setPhoto($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('danger', 'Image upload failed.');
+                }
+            }
+
             $entityManager->persist($product);
             $entityManager->flush();
 
@@ -95,28 +113,49 @@ class ProductController extends AbstractController
             'categories' => $this->getAvailableCategories()
         ]);
     }
+
     #[Route('/admin/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
-#[IsGranted('ROLE_ADMIN')]
-public function edit(
-    Request $request, 
-    Product $product,
-    EntityManagerInterface $entityManager
-): Response {
-    $form = $this->createForm(ProductType::class, $product);
-    $form->handleRequest($request);
+    #[IsGranted('ROLE_ADMIN')]
+    public function edit(
+        Request $request,
+        Product $product,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger
+    ): Response {
+        $form = $this->createForm(ProductType::class, $product);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $entityManager->flush();
-        $this->addFlash('success', 'Product updated successfully!');
-        return $this->redirectToRoute('app_product_index');
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile $photoFile */
+            $photoFile = $form->get('photo')->getData();
+
+            if ($photoFile) {
+                $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $photoFile->guessExtension();
+
+                try {
+                    $photoFile->move(
+                        $this->getParameter('product_images_directory'),
+                        $newFilename
+                    );
+                    $product->setPhoto($newFilename);
+                } catch (FileException $e) {
+                    $this->addFlash('danger', 'Image upload failed.');
+                }
+            }
+
+            $entityManager->flush();
+            $this->addFlash('success', 'Product updated successfully!');
+            return $this->redirectToRoute('app_product_index');
+        }
+
+        return $this->render('admin/product/edit.html.twig', [
+            'product' => $product,
+            'form' => $form->createView(),
+            'categories' => $this->getAvailableCategories()
+        ]);
     }
-
-    return $this->render('admin/product/edit.html.twig', [
-        'product' => $product,
-        'form' => $form->createView(),
-        'categories' => $this->getAvailableCategories()
-    ]);
-}
 
     #[Route('/admin/{id}/delete', name: 'app_product_delete', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
@@ -125,7 +164,7 @@ public function edit(
         Product $product,
         EntityManagerInterface $entityManager
     ): Response {
-        if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $product->getId(), $request->request->get('_token'))) {
             $entityManager->remove($product);
             $entityManager->flush();
             $this->addFlash('success', 'Product deleted successfully!');

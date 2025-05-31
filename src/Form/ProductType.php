@@ -11,6 +11,8 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class ProductType extends AbstractType
 {
@@ -33,6 +35,18 @@ class ProductType extends AbstractType
                     'Sport' => 'Sport'
                 ],
                 'placeholder' => 'Choose a category',
+            ])
+            ->add('photo', FileType::class, [
+                'label' => 'Product Image (JPG or PNG)',
+                'mapped' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2M',
+                        'mimeTypes' => ['image/jpeg', 'image/png'],
+                        'mimeTypesMessage' => 'Please upload a valid JPG/PNG image.',
+                    ])
+                ],
             ]);
     }
 
@@ -43,4 +57,3 @@ class ProductType extends AbstractType
         ]);
     }
 }
-
