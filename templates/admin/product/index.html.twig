@@ -47,54 +47,34 @@
 
         <div class="row">
             {% for product in products %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.price|number_format(2, '.', ',') }} DT</p>
-                            <p class="card-text">
-                                <span class="badge bg-primary">{{ product.category }}</span>
-                            </p>
-                            <p class="card-text">Stock: {{ product.stock }}</p>
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-sm btn-info">Details</a>
-                                {% if is_granted('ROLE_ADMIN') %}
-                                    <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-sm btn-warning">Edit</a>
-                                    <button type="button"
-                                            class="btn btn-sm btn-danger"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#deleteModal{{ product.id }}">
-                                        Delete
-                                    </button>
-                                {% endif %}
-
-                                <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-sm btn-primary">Add to Cart</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Delete Confirmation Modal -->
-                <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="deleteModalLabel{{ product.id }}">Confirm Deletion</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    Are you sure you want to delete <strong>{{ product.name }}</strong>?
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
-                                    <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                                </div>
+                <div class="card h-100 mb-3" style="width: 18rem; display: inline-block;">
+                    {% if product.photo %}
+                        <img src="{{ asset('uploads/' ~ product.photo) }}" class="card-img-top" alt="{{ product.name }}" style="object-fit:cover; height:200px;">
+                    {% else %}
+                        <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="No image" style="object-fit:cover; height:200px;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.price|number_format(2, '.', ',') }} DT</p>
+                        <p class="card-text"><span class="badge bg-primary">{{ product.category }}</span></p>
+                        <p class="card-text">Stock: {{ product.stock }}</p>
+                        <div class="d-flex justify-content-between gap-1 flex-wrap">
+                            <a href="{{ path('app_product_show', {'id': product.id}) }}" class="btn btn-info btn-sm flex-fill">
+                                Details
+                            </a>
+                            <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-warning btn-sm flex-fill">
+                                Edit
+                            </a>
+                            <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                                <button class="btn btn-danger btn-sm flex-fill" type="submit">Delete</button>
                             </form>
+                            <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-success btn-sm flex-fill">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </a>
                         </div>
                     </div>
                 </div>
-
             {% else %}
                 <div class="col-12">
                     <div class="alert alert-info">No products found</div>

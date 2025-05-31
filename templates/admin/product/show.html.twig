@@ -25,6 +25,22 @@
                             </div>
                         {% endif %}
 
+                        {% if product.photo %}
+                            <div class="text-center mb-4">
+                                <img src="{{ asset('uploads/' ~ product.photo) }}"
+                                     class="img-fluid product-zoom"
+                                     alt="{{ product.name }}"
+                                     style="max-height:350px; transition: transform 0.3s;">
+                            </div>
+                        {% else %}
+                            <div class="text-center mb-4">
+                                <img src="{{ asset('images/no-image.png') }}"
+                                     class="img-fluid product-zoom"
+                                     alt="No image"
+                                     style="max-height:350px; transition: transform 0.3s;">
+                            </div>
+                        {% endif %}
+
                         <form action="{{ path('cart_add', {'id': product.id}) }}" method="get" class="mb-4">
                             <div class="input-group mb-3" style="max-width: 220px; margin: 0 auto;">
                                 <span class="input-group-text bg-light">Quantity</span>

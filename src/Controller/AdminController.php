@@ -11,21 +11,24 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\ProductRepository;
 
 #[Route('/admin')]
-#[IsGranted('ROLE_ADMIN')]  // Restreint l'accès aux admins uniquement
+#[IsGranted('ROLE_ADMIN')]
 class AdminController extends AbstractController
 {
     #[Route('/', name: 'admin_dashboard')]
-    public function index(): Response
+    public function index(ProductRepository $productRepository): Response
     {
-        // Double vérification du rôle admin
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
+        // Get all products with optional pagination
+        $products = $productRepository->findAll();
+
         return $this->render('admin/index.html.twig', [
-            'browseProductsRoute' => 'app_product_index', // admin route
-            'seeProductsRoute' => 'app_product_index', // <-- add this line
-            // ...other variables if needed
+            'products' => $products,  // Changed from 'product' to 'products'
+            'browseProductsRoute' => 'app_product_index',
+            'seeProductsRoute' => 'app_product_index',
         ]);
     }
 
@@ -68,11 +71,9 @@ class AdminController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($request->isMethod('POST')) {
-            // Get roles as an array from the form
             $roles = $request->request->all('roles') ?? [];
             $isVerified = $request->request->get('isVerified') === 'on';
             
-            // Ensure ROLE_USER is always present
             if (!in_array('ROLE_USER', $roles)) {
                 $roles[] = 'ROLE_USER';
             }

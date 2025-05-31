@@ -4,6 +4,14 @@
 {% block title %}{{ product.name }}{% endblock %}
 
 {% block body %}
+    <style>
+        .product-zoom:hover {
+            transform: scale(1.15);
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+    </style>
+
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
@@ -22,6 +30,22 @@
                             <div class="card-text mb-4">
                                 <h5 class="fw-semibold">Description:</h5>
                                 <p class="text-muted">{{ product.description }}</p>
+                            </div>
+                        {% endif %}
+
+                        {% if product.photo %}
+                            <div class="text-center mb-4">
+                                <img src="{{ asset('uploads/' ~ product.photo) }}"
+                                     class="img-fluid product-zoom"
+                                     alt="{{ product.name }}"
+                                     style="max-height:350px; transition: transform 0.3s;">
+                            </div>
+                        {% else %}
+                            <div class="text-center mb-4">
+                                <img src="{{ asset('images/no-image.png') }}"
+                                     class="img-fluid product-zoom"
+                                     alt="No image"
+                                     style="max-height:350px; transition: transform 0.3s;">
                             </div>
                         {% endif %}
 
