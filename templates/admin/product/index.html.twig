@@ -37,10 +37,14 @@
                 </div>
             </div>
         </form>
+
         {% if is_granted('ROLE_ADMIN') %}
             <div class="mb-3 text-end">
                 <a href="{{ path('app_product_new') }}" class="btn btn-success">
                     <i class="bi bi-plus-circle"></i> Add Product
+                </a>
+                <a href="{{ path('app_product_deleted') }}" class="btn btn-secondary">
+                    <i class="bi bi-archive"></i> Restore Deleted Products
                 </a>
             </div>
         {% endif %}
@@ -65,7 +69,7 @@
                             <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="btn btn-warning btn-sm flex-fill">
                                 Edit
                             </a>
-                            <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                            <form method="post" action="{{ path('app_product_delete', {'id': product.id}) }}" class="delete-form" style="display:inline;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
                                 <button class="btn btn-danger btn-sm flex-fill" type="submit">Delete</button>
                             </form>
@@ -86,4 +90,29 @@
             {{ knp_pagination_render(products) }}
         </div>
     </div>
+
+    {# SweetAlert2 for delete confirmation #}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This product will be permanently deleted!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}

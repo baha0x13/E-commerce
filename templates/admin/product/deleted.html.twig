@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Deleted Products{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Deleted Products</h1>
+
+        <div class="mb-3">
+            <a href="{{ path('app_product_index') }}" class="btn btn-primary">
+                <i class="bi bi-arrow-left"></i> Back to Products
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% if products is empty %}
+            <div class="alert alert-info">No deleted products found.</div>
+        {% endif %}
+
+        <div class="row">
+            {% for product in products %}
+                <div class="card h-100 mb-3" style="width: 18rem; display: inline-block;">
+                    {% if product.photo %}
+                        <img src="{{ asset('uploads/' ~ product.photo) }}" class="card-img-top" alt="{{ product.name }}" style="object-fit:cover; height:200px;">
+                    {% else %}
+                        <img src="{{ asset('images/no-image.png') }}" class="card-img-top" alt="No image" style="object-fit:cover; height:200px;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text"><span class="badge bg-secondary">{{ product.category }}</span></p>
+                        <p class="card-text">Stock: {{ product.stock }}</p>
+                        <form method="post" action="{{ path('app_product_restore', {'id': product.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('restore' ~ product.id) }}">
+                            <button class="btn btn-success w-100">Restore</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

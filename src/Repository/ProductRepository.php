@@ -15,26 +15,21 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * Search products with optional filters and pagination
-     *
-     * @param string $searchTerm
-     * @param string $category
-     * @param int $page
-     * @param PaginatorInterface $paginator
-     * @return \Knp\Component\Pager\Pagination\PaginationInterface
+     * Search products with optional filters and pagination, excluding deleted products.
      */
     public function search(
-        string $searchTerm = '', 
-        string $category = '', 
-        int $page = 1, 
+        string $searchTerm = '',
+        string $category = '',
+        int $page = 1,
         PaginatorInterface $paginator
     ) {
         $queryBuilder = $this->createQueryBuilder('p')
-            ->select('p');
+            ->select('p')
+            ->where('p.isDeleted = false');
 
         if ($searchTerm) {
             $queryBuilder->andWhere('p.name LIKE :searchTerm')
-                ->setParameter('searchTerm', '%'.$searchTerm.'%');
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
         }
 
         if ($category) {
@@ -54,13 +49,13 @@ class ProductRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get all available categories from products
-     * @return array
+     * Get all categories from non-deleted products.
      */
     public function getAvailableCategories(): array
     {
         return $this->createQueryBuilder('p')
             ->select('DISTINCT p.category')
+            ->where('p.isDeleted = false')
             ->orderBy('p.category', 'ASC')
             ->getQuery()
             ->getSingleColumnResult();

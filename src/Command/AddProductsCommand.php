@@ -115,6 +115,8 @@ class AddProductsCommand extends Command
             $product->setStock($productData['stock']);
             $product->setDescription($productData['description']);
             $product->setCategory($productData['category']);
+            $product->setIsDeleted(false);
+
 
             if (!empty($productData['photo'])) {
                 $photoPath = __DIR__ . '/../../public/uploads/' . $productData['photo'];

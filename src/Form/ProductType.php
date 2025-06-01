@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class ProductType extends AbstractType
 {
@@ -24,6 +25,10 @@ class ProductType extends AbstractType
             ->add('stock', IntegerType::class)
             ->add('description', TextareaType::class, [
                 'required' => false,
+            ])
+            ->add('isDeleted', CheckboxType::class, [
+                'required' => false,
+                'label' => 'Mark as deleted',
             ])
             ->add('category', ChoiceType::class, [
                 'choices' => [
