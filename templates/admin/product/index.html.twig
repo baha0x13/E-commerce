@@ -73,7 +73,9 @@
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
                                 <button class="btn btn-danger btn-sm flex-fill" type="submit">Delete</button>
                             </form>
-                            <a href="{{ path('cart_add', {'id': product.id}) }}" class="btn btn-success btn-sm flex-fill">
+                            <a href="{{ path('cart_add', {'id': product.id}) }}"
+                               class="btn btn-success btn-sm flex-fill add-to-cart-btn"
+                               data-product-id="{{ product.id }}">
                                 <i class="bi bi-cart-plus"></i> Add to Cart
                             </a>
                         </div>

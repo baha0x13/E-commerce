@@ -5,6 +5,7 @@ use App\Entity\Product;
 use App\Service\CartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -50,6 +51,11 @@ class CartController extends AbstractController
         
         $this->addFlash('success', 'Product added to cart!');
         
+        // Redirect back to the previous page (referer)
+        $referer = $request->headers->get('referer');
+        if ($referer) {
+            return $this->redirect($referer);
+        }
         return $this->redirectToRoute('cart_index');
     }
     
@@ -101,5 +107,11 @@ class CartController extends AbstractController
         $this->addFlash('success', 'Cart cleared!');
         
         return $this->redirectToRoute('cart_index');
+    }
+    
+    #[Route('/count', name: 'cart_count', methods: ['GET'])]
+    public function cartCount(CartService $cartService): JsonResponse
+    {
+        return $this->json(['count' => count($cartService->getCart())]);
     }
 }

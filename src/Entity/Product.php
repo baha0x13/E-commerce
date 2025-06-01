@@ -37,6 +37,7 @@ class Product
 
     #[ORM\Column(type: 'boolean')]
     private bool $isDeleted = false;
+
     public function __construct()
     {
         $this->orderItems = new ArrayCollection();

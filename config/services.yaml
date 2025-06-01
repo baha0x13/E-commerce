@@ -23,7 +23,8 @@ services:
         resource: '../src/Repository'
         tags: [ 'repository.service' ]
 
-
+    App\Twig\AppExtension:
+        tags: ['twig.extension']
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -46,8 +46,8 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_product_show', methods: ['GET'])]
-    public function show(Product $product): Response
+    #[Route('/{id}', name: 'app_product_show', methods: ['GET', 'POST'])]
+    public function show(Product $product, Request $request, EntityManagerInterface $entityManager): Response
     {
         if ($product->isDeleted()) {
             throw $this->createNotFoundException('Product not found.');
